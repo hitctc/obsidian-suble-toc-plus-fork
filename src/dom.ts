@@ -264,7 +264,6 @@ export function completeTask(view: MarkdownView, line: number): boolean {
 			.catch(() => undefined);
 		return true;
 	} catch (e) {
-		console.error("Subtle TOC: failed to complete task", e);
 		return false;
 	}
 }
@@ -306,7 +305,6 @@ export function getActiveHeadingIndex(
 			}
 		}
 	} catch (e) {
-		console.error("Subtle TOC: failed to compute active heading", e);
 	}
 
 	return 0;

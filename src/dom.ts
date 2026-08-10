@@ -261,7 +261,7 @@ export function completeTask(view: MarkdownView, line: number): boolean {
 				if (ch >= 0) lines[line] = lines[line].slice(0, ch) + "x" + lines[line].slice(ch + 1);
 				return lines.join("\n");
 			})
-			.catch((e) => console.error("Subtle TOC: failed to complete task", e));
+			.catch(() => undefined);
 		return true;
 	} catch (e) {
 		console.error("Subtle TOC: failed to complete task", e);

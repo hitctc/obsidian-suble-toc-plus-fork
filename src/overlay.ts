@@ -776,19 +776,15 @@ export class TocOverlay {
 		const allTopExpanded = this.parentIndices.every(
 			(isP, i) => !isP || this.headings[i].level > baseLevel || this.expandedSet.has(i),
 		);
-		console.log(`[SubtleTOC] toolbar toggleCollapse: baseLevel=${baseLevel}, allTopExpanded=${allTopExpanded}, expandedSet before:`, [...this.expandedSet]);
 		if (allTopExpanded) {
 			// Collapse all: clear the entire expanded set
 			this.keepOpenUntilPopoverReenter = true;
 			this.cancelClose();
 			this.expandedSet.clear();
-			console.log("[SubtleTOC]   → COLLAPSE ALL (cleared expandedSet)");
 		} else {
 			// Expand all: add ALL parents to the expanded set
 			this.parentIndices.forEach((isP, i) => { if (isP) this.expandedSet.add(i); });
-			console.log("[SubtleTOC]   → EXPAND ALL (added all parents)");
 		}
-		console.log("[SubtleTOC] expandedSet after toolbar:", [...this.expandedSet]);
 		// Update all per-item toggle visuals to match the new expanded state
 		this.parentIndices.forEach((isP, i) => {
 			if (isP) {
@@ -841,8 +837,6 @@ export class TocOverlay {
 			if (!this.parentIndices[idx]) this.expandedSet.delete(idx);
 		}
 		this.parentIndices.forEach((isP, i) => { if (isP) this.expandedSet.add(i); });
-		console.log("[SubtleTOC] refresh:", this.headings.map((h, i) => `[${i}] L${h.level} "${h.text}" parent=${this.parentIndices[i]}`));
-		console.log("[SubtleTOC] expandedSet after refresh:", [...this.expandedSet]);
 
 		// While the popover is open, keep the current task snapshot so completing a
 		// task strikes its row instead of yanking it out; it's rebuilt on the next
@@ -1009,16 +1003,13 @@ export class TocOverlay {
 
 	/** Toggle the collapsed state of a single parent heading. */
 	private toggleCollapseAt(index: number): void {
-		console.log(`[SubtleTOC] toggleCollapseAt(${index}) "${this.headings[index]?.text}" L${this.headings[index]?.level}, expandedSet before:`, [...this.expandedSet]);
 		if (this.expandedSet.has(index)) {
 			// Currently expanded → collapse: remove from set
 			this.expandedSet.delete(index);
-			console.log(`[SubtleTOC]   → was expanded, now COLLAPSED (removed ${index})`);
 		} else {
 			// Currently collapsed → expand: add to set, and ensure DIRECT
 			// ancestors are also expanded so this heading becomes visible.
 			this.expandedSet.add(index);
-			console.log(`[SubtleTOC]   → was collapsed, now EXPANDED (added ${index})`);
 			let checkLevel = this.headings[index].level;
 			for (let j = index - 1; j >= 0; j--) {
 				if (this.headings[j].level < checkLevel) {
@@ -1027,7 +1018,6 @@ export class TocOverlay {
 						this.expandedSet.add(j);
 						const t = this.itemEls[j]?.querySelector<HTMLElement>(".subtle-toc-toggle");
 						t?.toggleClass("is-expanded", true);
-						console.log(`[SubtleTOC]   → also expanded ancestor [${j}] "${this.headings[j].text}"`);
 					}
 					checkLevel = this.headings[j].level;
 					if (checkLevel <= 1) break;
@@ -1040,8 +1030,6 @@ export class TocOverlay {
 		toggle?.toggleClass("is-expanded", this.expandedSet.has(index));
 		// Recompute visibility for all items
 		this.updateItemVisibility();
-		console.log(`[SubtleTOC] expandedSet after:`, [...this.expandedSet]);
-		console.log(`[SubtleTOC] visibility:`, this.headings.map((h, i) => `[${i}] "${h.text}" hidden=${this.itemEls[i]?.hasClass("is-hidden")}`));
 	}
 
 	private buildTaskList(): void {

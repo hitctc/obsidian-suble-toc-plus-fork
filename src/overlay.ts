@@ -971,14 +971,18 @@ export class TocOverlay {
 		// (H1, or H2 in notes that skip H1) sits flush with no wasted indent.
 		const baseLevel = this.headings.reduce((min, h) => Math.min(min, h.level), 6);
 		this.itemEls = this.headings.map((h, i) => {
+			const isParent = this.parentIndices[i];
 			const item = this.listEl.createDiv({
 				cls: `subtle-toc-item subtle-toc-level-${h.level}`,
 			});
-			item.style.setProperty("--toc-indent", String(h.level - baseLevel));
+			const indent = h.level - baseLevel;
+			item.style.setProperty("--toc-indent", String(indent));
+			item.toggleClass("is-nested", indent > 0);
 
-			// Per-item expand/collapse toggle for parent headings
-			if (this.parentIndices[i]) {
-				const toggle = item.createDiv({ cls: "subtle-toc-toggle" });
+			const toggle = item.createDiv({
+				cls: `subtle-toc-toggle${isParent ? "" : " is-placeholder"}`,
+			});
+			if (isParent) {
 				toggle.createSpan({ cls: "subtle-toc-toggle-arrow" });
 				toggle.toggleClass("is-expanded", this.expandedSet.has(i));
 				const onClick = (e: MouseEvent) => {
@@ -990,6 +994,8 @@ export class TocOverlay {
 					e.stopPropagation();
 				});
 				toggle.addEventListener("click", onClick);
+			} else {
+				toggle.setAttribute("aria-hidden", "true");
 			}
 
 			const text = h.text || t.untitled;

@@ -538,6 +538,7 @@ export class TocOverlay {
 		this.rootEl.toggleClass("is-tab-tasks", tab === "tasks");
 		this.headingsTabEl?.toggleClass("is-active", tab === "headings");
 		this.tasksTabEl?.toggleClass("is-active", tab === "tasks");
+		if (tab === "headings") requestAnimationFrame(() => this.updateTreeLines());
 	}
 
 	/** Re-apply the active tab (keeping the last-used one when it has content, or
@@ -765,11 +766,12 @@ export class TocOverlay {
 	}
 
 	private updateTreeLines(): void {
-		const baseLevel = this.headings.reduce((min, h) => Math.min(min, h.level), 6);
+		const listRect = this.listEl.getBoundingClientRect();
 		for (let i = 0; i < this.headings.length; i++) {
 			const line = this.treeLineEls[i];
 			const parent = this.itemEls[i];
-			if (!line || !parent || !this.parentIndices[i] || parent.hasClass("is-hidden")) {
+			const arrow = parent?.querySelector<HTMLElement>(".subtle-toc-toggle-arrow");
+			if (!line || !parent || !arrow || !this.parentIndices[i] || parent.hasClass("is-hidden")) {
 				line?.addClass("is-hidden");
 				continue;
 			}
@@ -784,10 +786,11 @@ export class TocOverlay {
 				continue;
 			}
 
-			const parentIndent = this.headings[i].level - baseLevel;
-			const left = 12 + (parentIndent + 1) * 18 - 9;
-			const top = parent.offsetTop + parent.offsetHeight - 2;
-			const bottom = lastItem.offsetTop + lastItem.offsetHeight - 2;
+			const arrowRect = arrow.getBoundingClientRect();
+			const lastRect = lastItem.getBoundingClientRect();
+			const left = arrowRect.left + arrowRect.width / 2 - listRect.left + this.listEl.scrollLeft;
+			const top = arrowRect.bottom - listRect.top + this.listEl.scrollTop - 1;
+			const bottom = lastRect.bottom - listRect.top + this.listEl.scrollTop - 2;
 			if (bottom <= top) {
 				line.addClass("is-hidden");
 				continue;

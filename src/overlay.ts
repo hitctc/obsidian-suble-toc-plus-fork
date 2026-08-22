@@ -23,6 +23,34 @@ function stripEscapeBackslashes(text: string): string {
 	return text.replace(ESCAPE_RE, "$1");
 }
 
+const ESCAPED_PLACEHOLDER_RE = /\uE000(\d+)\uE001/g;
+const INLINE_HTML_TAG_RE = /<\/?[A-Za-z][A-Za-z0-9-]*(?:\s+[^<>]*)?>/g;
+const HEADING_MARKUP_REPLACERS: Array<[RegExp, string]> = [
+	[/==([\s\S]+?)==/g, "$1"],
+	[/~~([\s\S]+?)~~/g, "$1"],
+	[/\*\*([\s\S]+?)\*\*/g, "$1"],
+	[/__([\s\S]+?)__/g, "$1"],
+	[/\*([^*\n]+?)\*/g, "$1"],
+	[/_([^_\n]+?)_/g, "$1"],
+];
+
+function stripHeadingMarkup(raw: string): string {
+	const escapedChars: string[] = [];
+	let text = raw.replace(ESCAPE_RE, (_match, char: string) => {
+		escapedChars.push(char);
+		return `\uE000${escapedChars.length - 1}\uE001`;
+	});
+
+	text = text.replace(INLINE_HTML_TAG_RE, "");
+	for (const [re, replacement] of HEADING_MARKUP_REPLACERS) {
+		text = text.replace(re, replacement);
+	}
+
+	return text
+		.replace(ESCAPED_PLACEHOLDER_RE, (_match, index: string) => escapedChars[Number(index)] ?? "")
+		.trim();
+}
+
 /** Normalize a color value: ensure # prefix, expand 3-digit hex to 6-digit. */
 function normalizeHexColor(raw: string): string {
 	let c = raw.trim();
@@ -824,7 +852,7 @@ export class TocOverlay {
 						.filter((h) => h.level >= minLevel && h.level <= maxLevel)
 						.map((h) => ({
 							level: h.level,
-							text: stripEscapeBackslashes(h.heading),
+							text: stripHeadingMarkup(h.heading),
 							line: h.position.start.line,
 						}));
 

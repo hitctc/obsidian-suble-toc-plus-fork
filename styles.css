@@ -354,7 +354,11 @@
 	content: "";
 	position: absolute;
 	width: 1px;
-	background: var(--background-modifier-border);
+	background: repeating-linear-gradient(
+		to bottom,
+		var(--background-modifier-border) 0 4px,
+		transparent 4px 8px
+	);
 	opacity: 0.9;
 	pointer-events: none;
 	z-index: 0;

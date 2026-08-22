@@ -3,7 +3,7 @@ name: Release Obsidian plugin
 on:
   push:
     branches:
-      - main
+      - marster
     tags:
       - '*'
 

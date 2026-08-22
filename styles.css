@@ -356,13 +356,12 @@
 	width: 1px;
 	background: repeating-linear-gradient(
 		to bottom,
-		var(--background-modifier-border) 0 4px,
+		color-mix(in srgb, var(--text-muted) 35%, transparent) 0 4px,
 		transparent 4px 8px
 	);
-	opacity: 0.9;
+	opacity: 1;
 	pointer-events: none;
 	z-index: 0;
-	transform: translateX(-0.5px);
 }
 
 .subtle-toc-tree-line.is-hidden {

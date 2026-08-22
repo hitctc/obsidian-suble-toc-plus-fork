@@ -767,6 +767,8 @@ export class TocOverlay {
 
 	private updateTreeLines(): void {
 		const listRect = this.listEl.getBoundingClientRect();
+		const dpr = window.devicePixelRatio || 1;
+		const snap = (value: number) => Math.round(value * dpr) / dpr;
 		for (let i = 0; i < this.headings.length; i++) {
 			const line = this.treeLineEls[i];
 			const parent = this.itemEls[i];
@@ -796,9 +798,9 @@ export class TocOverlay {
 				continue;
 			}
 
-			line.style.left = `${left}px`;
-			line.style.top = `${top}px`;
-			line.style.height = `${bottom - top}px`;
+			line.style.left = `${snap(left)}px`;
+			line.style.top = `${snap(top)}px`;
+			line.style.height = `${snap(bottom - top)}px`;
 			line.removeClass("is-hidden");
 		}
 	}

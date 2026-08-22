@@ -313,6 +313,7 @@
 
 /* outline list */
 .subtle-toc-list {
+	position: relative;
 	flex: 1 1 auto;
 	min-height: 0;
 	overflow-y: auto;
@@ -349,16 +350,19 @@
 	transition: background-color 100ms ease, color 100ms ease;
 }
 
-.subtle-toc-headings .subtle-toc-item.is-nested::after {
+.subtle-toc-tree-line {
 	content: "";
 	position: absolute;
-	left: calc(12px + var(--toc-indent, 0) * 18px - 9px);
-	top: -2px;
-	bottom: -2px;
 	width: 1px;
 	background: var(--background-modifier-border);
 	opacity: 0.9;
 	pointer-events: none;
+	z-index: 0;
+	transform: translateX(-0.5px);
+}
+
+.subtle-toc-tree-line.is-hidden {
+	display: none;
 }
 
 .subtle-toc-item:hover,

@@ -300,6 +300,7 @@ export class TocOverlay {
 	private tasks: TaskItem[] = [];
 	private dashEls: HTMLElement[] = [];
 	private itemEls: HTMLElement[] = [];
+	private treeLineEls: HTMLElement[] = [];
 	private taskEls: HTMLElement[] = [];
 	/** Lines completed via the TOC this session — filtered out so a struck task
 	 *  stays hidden on the next open even before the metadata cache catches up. */
@@ -760,6 +761,43 @@ export class TocOverlay {
 			"is-hidden",
 			searchTokens.length === 0 || visibleSearchMatches > 0,
 		);
+		this.updateTreeLines();
+	}
+
+	private updateTreeLines(): void {
+		const baseLevel = this.headings.reduce((min, h) => Math.min(min, h.level), 6);
+		for (let i = 0; i < this.headings.length; i++) {
+			const line = this.treeLineEls[i];
+			const parent = this.itemEls[i];
+			if (!line || !parent || !this.parentIndices[i] || parent.hasClass("is-hidden")) {
+				line?.addClass("is-hidden");
+				continue;
+			}
+
+			const visibleDescendants = this.descendantIndices[i].filter(
+				(index) => !this.itemEls[index]?.hasClass("is-hidden"),
+			);
+			const lastIndex = visibleDescendants[visibleDescendants.length - 1];
+			const lastItem = this.itemEls[lastIndex];
+			if (!lastItem) {
+				line.addClass("is-hidden");
+				continue;
+			}
+
+			const parentIndent = this.headings[i].level - baseLevel;
+			const left = 12 + (parentIndent + 1) * 18 - 9;
+			const top = parent.offsetTop + parent.offsetHeight - 2;
+			const bottom = lastItem.offsetTop + lastItem.offsetHeight - 2;
+			if (bottom <= top) {
+				line.addClass("is-hidden");
+				continue;
+			}
+
+			line.style.left = `${left}px`;
+			line.style.top = `${top}px`;
+			line.style.height = `${bottom - top}px`;
+			line.removeClass("is-hidden");
+		}
 	}
 
 	/** Update the toolbar expand-all button icon to reflect global state. */
@@ -977,7 +1015,6 @@ export class TocOverlay {
 			});
 			const indent = h.level - baseLevel;
 			item.style.setProperty("--toc-indent", String(indent));
-			item.toggleClass("is-nested", indent > 0);
 
 			const toggle = item.createDiv({
 				cls: `subtle-toc-toggle${isParent ? "" : " is-placeholder"}`,
@@ -1021,6 +1058,9 @@ export class TocOverlay {
 			item.addEventListener("click", (e) => this.handleHeadingClick(e, i));
 			return item;
 		});
+		this.treeLineEls = this.headings.map(() =>
+			this.listEl.createDiv({ cls: "subtle-toc-tree-line is-hidden" }),
+		);
 
 		if (this.headings.length === 0) {
 			this.listEl.createDiv({

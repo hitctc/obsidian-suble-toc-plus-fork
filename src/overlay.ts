@@ -769,6 +769,7 @@ export class TocOverlay {
 		const listRect = this.listEl.getBoundingClientRect();
 		const dpr = window.devicePixelRatio || 1;
 		const snap = (value: number) => Math.round(value * dpr) / dpr;
+		const treeLineTopGap = 4;
 		for (let i = 0; i < this.headings.length; i++) {
 			const line = this.treeLineEls[i];
 			const parent = this.itemEls[i];
@@ -791,7 +792,7 @@ export class TocOverlay {
 			const arrowRect = arrow.getBoundingClientRect();
 			const lastRect = lastItem.getBoundingClientRect();
 			const left = arrowRect.left + arrowRect.width / 2 - listRect.left + this.listEl.scrollLeft;
-			const top = arrowRect.bottom - listRect.top + this.listEl.scrollTop - 1;
+			const top = arrowRect.bottom - listRect.top + this.listEl.scrollTop + treeLineTopGap;
 			const bottom = lastRect.bottom - listRect.top + this.listEl.scrollTop - 2;
 			if (bottom <= top) {
 				line.addClass("is-hidden");

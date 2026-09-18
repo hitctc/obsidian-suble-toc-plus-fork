@@ -1,5 +1,5 @@
 import { App, PluginSettingTab, Setting } from "obsidian";
-import { DEFAULT_SETTINGS, TocDefaultTab, TocLanguage, TocShow } from "./types";
+import { DEFAULT_SETTINGS, TocDefaultTab, TocLanguage, TocShow, TocSide } from "./types";
 import type SubtleTocPlugin from "./main";
 
 /** Only where the picker starts while the color is unset — a neutral gray, since
@@ -23,7 +23,14 @@ interface SettingsLocale {
 	minimapVertical: [string, string];
 	showTasksMinimap: [string, string];
 	side: [string, string];
-	sideOpts: { right: string; left: string };
+	sideOpts: {
+		right: string;
+		left: string;
+		topLeft: string;
+		topRight: string;
+		bottomLeft: string;
+		bottomRight: string;
+	};
 	openTrigger: [string, string];
 	openTriggerOpts: { hover: string; click: string };
 	autoHideOnBlur: [string, string];
@@ -59,12 +66,19 @@ const EN: SettingsLocale = {
 	minimapWidth: ["Minimap marker width", "Scale the dashed markers (100% is the default)."],
 	minimapVertical: ["Minimap vertical scale", "Scale marker thickness and spacing to make the minimap shorter or taller (100% is the default size)."],
 	showTasksMinimap: ["Show tasks in minimap", "Show the open-task count on the edge of the note, next to the dashed markers. Notes with tasks but no headings always show it, so the TOC stays reachable."],
-	side: ["Side", "Which edge of the note to dock the TOC on."],
-	sideOpts: { right: "Right", left: "Left" },
+	side: ["Position", "Where to dock the TOC in the note."],
+	sideOpts: {
+		right: "Right (center)",
+		left: "Left (center)",
+		topLeft: "Top left",
+		topRight: "Top right",
+		bottomLeft: "Bottom left",
+		bottomRight: "Bottom right",
+	},
 	openTrigger: ["Open the popover on", "Hover over the minimap, or require a click to open."],
 	openTriggerOpts: { hover: "Hover", click: "Click" },
 	autoHideOnBlur: ["Auto-hide outside note", "Hide the TOC when focus moves away from the Markdown note, such as clicking a sidebar."],
-	closeDelay: ["Close delay", "How long the popover waits before closing after the mouse leaves it, in milliseconds. Raise it if it closes on you while switching tabs."],
+	closeDelay: ["Close delay", "How long the popover waits before closing after the pointer leaves the minimap or popover, in milliseconds. Raise it if it closes on you while switching tabs."],
 	popoverWidth: ["Popover width", "Set the width of the TOC popover in pixels (264 is the default)."],
 	panelHeight: ["Panel height", "Custom max height of the TOC popover in pixels. Set to 0 to use the default (50vh)."],
 	panelBgOpacity: ["Panel background opacity", "Transparency of the TOC panel background (10-100%). Lower values make the background more transparent."],
@@ -96,12 +110,19 @@ const ZH: SettingsLocale = {
 	minimapWidth: ["缩略图宽度", "缩放虚线标记宽度（100% 为默认）。"],
 	minimapVertical: ["缩略图高度", "缩放标记厚度和间距，使缩略图更短或更高（100% 为默认大小）。"],
 	showTasksMinimap: ["在缩略图中显示任务", "在笔记边缘显示待办任务数量，位于虚线标记旁边。只有任务没有标题的笔记始终显示，以便 TOC 始终可访问。"],
-	side: ["位置", "TOC 停靠在笔记的哪一侧。"],
-	sideOpts: { right: "右侧", left: "左侧" },
+	side: ["位置", "TOC 停靠在笔记中的哪个位置。"],
+	sideOpts: {
+		right: "右侧（居中）",
+		left: "左侧（居中）",
+		topLeft: "左上",
+		topRight: "右上",
+		bottomLeft: "左下",
+		bottomRight: "右下",
+	},
 	openTrigger: ["打开方式", "悬停在缩略图上打开，或需要点击打开。"],
 	openTriggerOpts: { hover: "悬停", click: "点击" },
 	autoHideOnBlur: ["失焦时自动隐藏", "当焦点离开 Markdown 笔记（例如点击侧边栏）时隐藏 TOC 面板。"],
-	closeDelay: ["关闭延迟", "鼠标离开弹出面板后等待关闭的时间（毫秒）。如果在切换标签时面板关闭太快，请增大此值。"],
+	closeDelay: ["关闭延迟", "鼠标离开缩略图或弹出面板后等待关闭的时间（毫秒）。如果在切换标签时面板关闭太快，请增大此值。"],
 	popoverWidth: ["面板宽度", "设置 TOC 弹出面板的宽度（像素），默认 264。"],
 	panelHeight: ["面板高度", "自定义 TOC 弹出面板的最大高度（像素）。设为 0 使用默认值（50vh）。"],
 	panelBgOpacity: ["面板背景透明度", "TOC 面板背景的透明度（10-100%）。数值越低越透明。"],
@@ -340,9 +361,13 @@ export class SubtleTocSettingTab extends PluginSettingTab {
 				d
 					.addOption("right", t.sideOpts.right)
 					.addOption("left", t.sideOpts.left)
+					.addOption("top-left", t.sideOpts.topLeft)
+					.addOption("top-right", t.sideOpts.topRight)
+					.addOption("bottom-left", t.sideOpts.bottomLeft)
+					.addOption("bottom-right", t.sideOpts.bottomRight)
 					.setValue(this.plugin.settings.side)
 					.onChange(async (v) => {
-						this.plugin.settings.side = v as "right" | "left";
+						this.plugin.settings.side = v as TocSide;
 						await this.plugin.saveAndRefresh();
 					}),
 			);

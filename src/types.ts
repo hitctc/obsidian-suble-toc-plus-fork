@@ -17,7 +17,13 @@ export interface TaskItem {
 /** A navigable target: enough for scrollToTarget to scroll/flash it. */
 export type NavTarget = { text: string; line: number };
 
-export type TocSide = "right" | "left";
+export type TocSide =
+	| "right"
+	| "left"
+	| "top-left"
+	| "top-right"
+	| "bottom-left"
+	| "bottom-right";
 export type TocTrigger = "hover" | "click";
 export type TocShow = "headings" | "tasks" | "both";
 export type TocDefaultTab = "headings" | "tasks";
@@ -38,7 +44,7 @@ export interface SubtleTocSettings {
 	minimapVerticalScale: number;
 	/** Show the open-task badge on the edge, next to the dashed minimap. */
 	showTasksInMinimap: boolean;
-	/** Which edge of the note to dock the minimap / popover on. */
+	/** Which position of the note to dock the minimap / popover on. */
 	side: TocSide;
 	/** Open the popover on hover or only on click. */
 	openTrigger: TocTrigger;

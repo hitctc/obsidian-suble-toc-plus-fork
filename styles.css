@@ -25,6 +25,16 @@
 	left: 8px;
 }
 
+.subtle-toc-root.is-top {
+	top: 10px;
+	bottom: auto;
+}
+
+.subtle-toc-root.is-bottom {
+	top: auto;
+	bottom: 10px;
+}
+
 .subtle-toc-root.is-empty {
 	display: none;
 }
@@ -210,28 +220,41 @@
 	box-shadow: var(--shadow-s, 0 8px 24px rgba(0, 0, 0, 0.35));
 	overflow: hidden;
 	/* closed state: nudged toward the edge and faded out */
+	--toc-popover-slide-x: 10px;
+	--toc-popover-slide-y: -50%;
 	opacity: 0;
-	transform: translate(10px, -50%);
+	transform: translate(var(--toc-popover-slide-x), var(--toc-popover-slide-y));
 	transition: opacity 140ms ease, transform 140ms ease;
 }
 
-/* left-side minimap: anchor to the left edge and slide out rightward */
+/* left-side minimap: anchor to the left edge and slide out leftward */
 .subtle-toc-root.is-left .subtle-toc-popover {
 	right: auto;
 	left: 0;
-	transform: translate(-10px, -50%);
+	--toc-popover-slide-x: -10px;
+}
+
+.subtle-toc-root.is-top .subtle-toc-popover {
+	top: 0;
+	--toc-popover-slide-y: 0;
+}
+
+.subtle-toc-root.is-bottom .subtle-toc-popover {
+	top: auto;
+	bottom: 0;
+	--toc-popover-slide-y: 0;
 }
 
 .subtle-toc-root.is-open .subtle-toc-popover {
 	pointer-events: auto;
 	opacity: 1;
-	transform: translate(0, -50%);
+	transform: translate(0, var(--toc-popover-slide-y));
 }
 
 @media (prefers-reduced-motion: reduce) {
 	.subtle-toc-popover {
 		transition: opacity 140ms ease;
-		transform: translate(0, -50%);
+		transform: translate(0, var(--toc-popover-slide-y));
 	}
 }
 
@@ -599,7 +622,7 @@
 .subtle-toc-root.is-pinned .subtle-toc-popover {
 	pointer-events: auto;
 	opacity: 1;
-	transform: translate(0, -50%);
+	transform: translate(0, var(--toc-popover-slide-y));
 }
 
 .subtle-toc-root.is-pinned .subtle-toc-minimap {

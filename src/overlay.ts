@@ -573,28 +573,26 @@ export class TocOverlay {
 			this.cancelClose();
 			this.keepOpenUntilPopoverReenter = false;
 		});
-		this.popoverEl.addEventListener("mouseleave", (e) => this.onPopoverLeave(e));
+		this.popoverEl.addEventListener("mouseleave", () => this.onPopoverLeave());
 	}
 
-	/** Leaving sideways, back toward the note, reads as "done with it" — close at
-	 *  once. Any other exit keeps the grace period, so the popover still survives
-	 *  the cursor falling outside when a shorter tab shrinks it. */
-	private onPopoverLeave(e: MouseEvent): void {
-		if (this.isPinned || this.keepOpenUntilPopoverReenter) return;
-		const rect = this.popoverEl.getBoundingClientRect();
-		const towardNote =
-			this.settings.side === "left" ? e.clientX > rect.right : e.clientX < rect.left;
-		if (!towardNote) {
-			this.scheduleClose();
-			return;
-		}
-		this.cancelClose();
-		this.close();
+	/** Schedule every popover exit through the configured delay, including exits toward the note. */
+	private onPopoverLeave(): void {
+		this.scheduleClose();
 	}
 
+	/** Apply the horizontal and vertical classes needed by the selected dock position. */
 	private applySide(): void {
-		this.rootEl.toggleClass("is-left", this.settings.side === "left");
-		this.rootEl.toggleClass("is-right", this.settings.side === "right");
+		const position = this.settings.side;
+		const isLeft = position === "left" || position.endsWith("-left");
+		const isRight = position === "right" || position.endsWith("-right");
+		const isTop = position.startsWith("top-");
+		const isBottom = position.startsWith("bottom-");
+
+		this.rootEl.toggleClass("is-left", isLeft);
+		this.rootEl.toggleClass("is-right", isRight);
+		this.rootEl.toggleClass("is-top", isTop);
+		this.rootEl.toggleClass("is-bottom", isBottom);
 	}
 
 	private applyTextWrap(): void {
@@ -1386,10 +1384,14 @@ export class TocOverlay {
 		else this.open();
 	}
 
+	/** Start one close timer using the current setting and clear its handle after it fires. */
 	private scheduleClose(): void {
 		if (this.isPinned || this.keepOpenUntilPopoverReenter) return;
 		this.cancelClose();
-		this.closeTimer = window.setTimeout(() => this.close(), this.settings.closeDelay);
+		this.closeTimer = window.setTimeout(() => {
+			this.closeTimer = null;
+			this.close();
+		}, this.settings.closeDelay);
 	}
 
 	private cancelClose(): void {

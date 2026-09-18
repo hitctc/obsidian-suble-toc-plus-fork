@@ -6,6 +6,9 @@
 node_modules/
 package-lock.json
 
+# local environment
+.env
+
 # build output (bundled on release)
 main.js
 *.js.map

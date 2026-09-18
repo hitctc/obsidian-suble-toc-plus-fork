@@ -407,7 +407,7 @@ export class SubtleTocSettingTab extends PluginSettingTab {
 			.setDesc(t.closeDelay[1])
 			.addSlider((s) =>
 				s
-					.setLimits(0, 1000, 20)
+					.setLimits(0, 2000, 20)
 					.setValue(this.plugin.settings.closeDelay)
 					.setDynamicTooltip()
 					.onChange(async (v) => {

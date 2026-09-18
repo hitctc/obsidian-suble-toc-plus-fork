@@ -224,7 +224,7 @@
 	--toc-popover-slide-y: -50%;
 	opacity: 0;
 	transform: translate(var(--toc-popover-slide-x), var(--toc-popover-slide-y));
-	transition: opacity 140ms ease, transform 140ms ease;
+	transition: opacity 220ms ease, transform 220ms ease;
 }
 
 /* left-side minimap: anchor to the left edge and slide out leftward */
